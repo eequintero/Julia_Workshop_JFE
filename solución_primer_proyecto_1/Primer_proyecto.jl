@@ -152,6 +152,51 @@ end
 # ╔═╡ 7f16b4d0-5912-11eb-2c9a-1366da054c92
 colormap(f₀, testJM, 0im, 0im, 30)
 
+# ╔═╡ 9c133fc0-59d7-11eb-3f14-05b0a0f1ba1a
+md"## Solución de los incisos
+
+#### 2) Graficar el conjunto de Mandelbrot (monocromático).
+
+* Función que retorna el conjunto de puntos que pertenecen al conjunto de Mandelbrot"
+
+# ╔═╡ b4eb31e0-59d9-11eb-0b5e-4b6bc6d135cc
+begin
+	g= Grid(5,4,1)
+	grid= makeGrid(g)
+	#typeof(grid)
+	length(grid[1])
+end
+
+# ╔═╡ ef6dbffe-59d7-11eb-1d7b-07a550f9f718
+"""
+	setmandelbrot()
+Construir un array con los puntos del plano complejo que pertenecen al conjunto, dada la región de análisis del plano complejo
+Entradas:
+- f::Function
+- test::Function
+- grid::Array{T,2} where T
+- iter::Integer
+"""
+function setmandelbrot(
+		f::Function,
+		test::Function,
+		grid::Array{T,2} where T,
+		iter::Integer)
+	
+	m= length(grid[1]) #número de abcisas (eje X) contando el 0
+	n= length(grid[2]) #número de ordenadas (eje Y) contando el 0
+	
+	puntos= zeros(n,m)
+	
+	for x ∈ 0:m
+		for y ∈ 0:n
+			if iterate(test,f,x+yim,iter)==true
+				puntos[y,x]= x+yim
+			end
+		end
+	end
+end
+
 # ╔═╡ Cell order:
 # ╟─98c65340-5859-11eb-03be-699fb34b8d36
 # ╟─7fc09d90-585b-11eb-1f99-eb47f32584c9
@@ -171,3 +216,6 @@ colormap(f₀, testJM, 0im, 0im, 30)
 # ╠═7f16b4d0-5912-11eb-2c9a-1366da054c92
 # ╟─0a25ed80-585e-11eb-11a2-dda4146ebd87
 # ╠═15551640-585e-11eb-3e01-7b46b0cfc511
+# ╟─9c133fc0-59d7-11eb-3f14-05b0a0f1ba1a
+# ╠═b4eb31e0-59d9-11eb-0b5e-4b6bc6d135cc
+# ╠═ef6dbffe-59d7-11eb-1d7b-07a550f9f718

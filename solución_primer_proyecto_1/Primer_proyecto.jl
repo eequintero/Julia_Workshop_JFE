@@ -34,7 +34,7 @@ function makeGrid(g::Grid)
 	rango_abcisas  = 0:g.paso:g.limite_abcisas   #origen:paso:limite
 	rango_ordenadas= 0:g.paso:g.limite_ordenadas #origen:paso:limite
 	
-	[rango_abcisas,rango_ordenadas]
+	[x+y*im for x in rango_abcisas, y in rango_ordenadas]
 end
 
 # ╔═╡ 81c7c2c0-585c-11eb-27f7-9d6500737259
@@ -159,14 +159,6 @@ md"## Solución de los incisos
 
 * Función que retorna el conjunto de puntos que pertenecen al conjunto de Mandelbrot"
 
-# ╔═╡ b4eb31e0-59d9-11eb-0b5e-4b6bc6d135cc
-begin
-	g= Grid(5,4,1)
-	grid= makeGrid(g)
-	#typeof(grid)
-	length(grid[1])
-end
-
 # ╔═╡ ef6dbffe-59d7-11eb-1d7b-07a550f9f718
 """
 	setmandelbrot()
@@ -177,24 +169,42 @@ Entradas:
 - grid::Array{T,2} where T
 - iter::Integer
 """
-function setmandelbrot(
-		f::Function,
-		test::Function,
-		grid::Array{T,2} where T,
-		iter::Integer)
+function setmandelbrot(f::Function, test::Function, grid::Array{T,2} where T, iter::Integer)
 	
-	m= length(grid[1]) #número de abcisas (eje X) contando el 0
-	n= length(grid[2]) #número de ordenadas (eje Y) contando el 0
+	m= size(grid,1) #número de abcisas (eje X) contando el 0
+	n= size(grid,2) #número de ordenadas (eje Y) contando el 0
 	
-	puntos= zeros(n,m)
+	pertenecen= Array{Any,1}()  #Array vacío
 	
-	for x ∈ 0:m
-		for y ∈ 0:n
-			if iterate(test,f,x+yim,iter)==true
-				puntos[y,x]= x+yim
+	for i ∈ 1:m
+		for j ∈ 1:n
+			c= grid[i,j]  #c toma el valor de los puntos dentro del grid
+			if iterate(test,f,0im,iter,c)==true
+				push!(pertenecen,c)  #Si c pertenece al conjunto se le agrega al array
 			end
 		end
 	end
+	pertenecen  #Al final se rotorna 
+end
+
+# ╔═╡ ec982e60-5a72-11eb-39c6-25dd69599c33
+begin
+	g= Grid{Float64}(10, 10, 0.3)
+	grid= makeGrid(g)
+end
+
+# ╔═╡ 0f958c52-5a73-11eb-3e5e-2793e1dde2a6
+(typeof(grid), size(grid))
+
+# ╔═╡ 58215020-5a6f-11eb-1bba-6f3fe829a3d8
+setmandelbrot(f₀, testJM, grid, 30) #Prueba de la función
+
+# ╔═╡ 8ac2dcd0-5a72-11eb-2d5f-dfe9a748c709
+md"* Gráfica de los puntos que pertenecen al conjunto"
+
+# ╔═╡ cb4d6d00-5a73-11eb-1e51-b32beb2a40f3
+begin
+	## Su código aquí	
 end
 
 # ╔═╡ Cell order:
@@ -217,5 +227,9 @@ end
 # ╟─0a25ed80-585e-11eb-11a2-dda4146ebd87
 # ╠═15551640-585e-11eb-3e01-7b46b0cfc511
 # ╟─9c133fc0-59d7-11eb-3f14-05b0a0f1ba1a
-# ╠═b4eb31e0-59d9-11eb-0b5e-4b6bc6d135cc
 # ╠═ef6dbffe-59d7-11eb-1d7b-07a550f9f718
+# ╠═ec982e60-5a72-11eb-39c6-25dd69599c33
+# ╠═0f958c52-5a73-11eb-3e5e-2793e1dde2a6
+# ╠═58215020-5a6f-11eb-1bba-6f3fe829a3d8
+# ╟─8ac2dcd0-5a72-11eb-2d5f-dfe9a748c709
+# ╠═cb4d6d00-5a73-11eb-1e51-b32beb2a40f3

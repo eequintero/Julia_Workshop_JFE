@@ -44,6 +44,12 @@ function makeGrid(g::Grid)
 	[x+y*im for x in rango_abcisas, y in rango_ordenadas]
 end
 
+# ╔═╡ 27ca04f0-5a95-11eb-3c1a-d1e6be66dec9
+begin  #Prueba de que el grid se crea correctamente
+	g= Grid{Float64}(2, 2, 0.01)
+	grid= makeGrid(g)
+end
+
 # ╔═╡ 81c7c2c0-585c-11eb-27f7-9d6500737259
 md"* Funciones de una línea para las formas biológicas y la familia de polinomios cuadráticos complejos"
 
@@ -131,7 +137,7 @@ Retornar el número de iteraciones para un valor dado de z mientras un criterio 
 function colormap(f::Function,test::Function,z::Complex,c::Complex,iter::Integer)
 	n=1
 	while n<=iter
-		if iterate(test, f, z, n,c)==false
+		if iterate(test, f, z, n, c)==false
 			return(n) #Si diverge se detiene y retorna las iteraciones
 			break
 		end
@@ -147,7 +153,7 @@ md"* Usando multiple dispatch, se define nuevamente la función colormap agregan
 function colormap(f::Function,test::Function,z::Complex,c::Complex,iter::Integer,τ::Integer)
 	n=1
 	while n<=iter
-		if iterate(test, f, z, iter, c, τ)==false
+		if iterate(test, f, z, n, c, τ)==false
 			return(n)  #Si diverge se detiene y retorna las iteraciones
 			break
 		end
@@ -155,9 +161,6 @@ function colormap(f::Function,test::Function,z::Complex,c::Complex,iter::Integer
 	end
 	iter  #Si nunca divergió retorna las iteraciones totales
 end
-
-# ╔═╡ 7f16b4d0-5912-11eb-2c9a-1366da054c92
-colormap(f₀, testJM, 0im, 0im, 30)
 
 # ╔═╡ 9c133fc0-59d7-11eb-3f14-05b0a0f1ba1a
 md"## Solución de los incisos
@@ -194,12 +197,6 @@ function setmandelbrot(f::Function, test::Function, grid::Array{T,2} where T, it
 	pertenecen  #Al final se rotorna 
 end
 
-# ╔═╡ ec982e60-5a72-11eb-39c6-25dd69599c33
-begin  #Prueba de que el grid se crea correctamente
-	g= Grid{Float64}(100, 100, 0.1)
-	grid= makeGrid(g)
-end
-
 # ╔═╡ 8ac2dcd0-5a72-11eb-2d5f-dfe9a748c709
 md"* Gráfica de los puntos que pertenecen al conjunto"
 
@@ -207,6 +204,33 @@ md"* Gráfica de los puntos que pertenecen al conjunto"
 begin  #Ajustamos los valores de default para el tamaño de la gráfica
 	tamanio = 50
 	Plots.default(size = (2200,2200),titlefontsize = tamanio, tickfontsize = tamanio, 	  legendfontsize = tamanio, guidefontsize = tamanio, legendtitlefontsize = tamanio)
+end
+
+# ╔═╡ edc75300-5a87-11eb-2e65-3da4fcbacb65
+md"#### 4) Hacer una gráfica a color del conjunto de Mandelbrot
+
+* Usando el algoritmo de Tiempo de Escape y multiple dispatch, se define nuevamente la función setmandelbrot, para obtener los datos necesarios (matriz) que definirán los colores para cada punto de una región arbitraria."
+
+# ╔═╡ c2cd7930-5a88-11eb-2b08-c1cb82c4cde0
+"""
+	prueba(test::Function,grid::Array{T,1} where T,f::Function,iter::Integer)
+Crear una matriz de enteros correspondiente a los colores 
+"""
+function setmandelbrot(test::Function, grid::Array{T,2} where T, f::Function, iter::Integer)
+	
+	m= size(grid,1) #número de abcisas (eje X) contando el 0
+	n= size(grid,2) #número de ordenadas (eje Y) contando el 0
+	
+	colores= Array{Float64}(undef,n,m)
+	
+	for i ∈ 1:m
+		for j ∈ 1:n
+			c= grid[i,j]  #c toma el valor de los puntos dentro del grid
+			colores[i,j] = colormap(f, test, 0im, c, iter)
+		end
+	end
+	
+	transpose(colores)
 end
 
 # ╔═╡ 98e3e26e-5a7f-11eb-22cb-7b2e6061369c
@@ -218,8 +242,18 @@ begin
 		    aspectratio=1,
 		    title="Conjunto de Mandelbrot",
 			legend=false,
-			markersize=30)
+			markersize=5)
 	#savefig("Mandelbrot.png")
+end
+
+# ╔═╡ de5bbf70-5a8f-11eb-09fe-7fdd53997909
+begin
+	x= -g.limite_abcisas:g.paso:g.limite_abcisas   
+	y= -g.limite_ordenadas:g.paso:g.limite_ordenadas
+	colores= setmandelbrot(testJM, grid, f₀, 30)
+	
+	heatmap(x, y, colores, color=cgrad([:white,:blue,:black]), title="Conjunto de Mandelbrot (Heatmap)", xlabel="Re(z)", ylabel="Im(z)")
+	#savefig("Mandelbrot_calor.png")
 end
 
 # ╔═╡ Cell order:
@@ -228,6 +262,7 @@ end
 # ╠═ab77fb00-585a-11eb-0f49-7bf677a9f82c
 # ╟─75f1ef30-585b-11eb-04f9-5baa98c295d7
 # ╠═d291f0a0-585b-11eb-2760-79433733f2bd
+# ╠═27ca04f0-5a95-11eb-3c1a-d1e6be66dec9
 # ╟─81c7c2c0-585c-11eb-27f7-9d6500737259
 # ╠═9e38a500-585c-11eb-03f9-5be3e141d5f6
 # ╟─a71cf360-585c-11eb-2503-09522c1a63b7
@@ -238,13 +273,14 @@ end
 # ╠═ece38a70-585d-11eb-1ba9-6bf688115b8a
 # ╟─db0d1450-5908-11eb-0cda-e12faf109f07
 # ╠═06d255b0-585e-11eb-1728-097f2e554508
-# ╠═7f16b4d0-5912-11eb-2c9a-1366da054c92
 # ╟─0a25ed80-585e-11eb-11a2-dda4146ebd87
 # ╠═15551640-585e-11eb-3e01-7b46b0cfc511
 # ╟─9c133fc0-59d7-11eb-3f14-05b0a0f1ba1a
 # ╠═ef6dbffe-59d7-11eb-1d7b-07a550f9f718
-# ╠═ec982e60-5a72-11eb-39c6-25dd69599c33
 # ╟─8ac2dcd0-5a72-11eb-2d5f-dfe9a748c709
 # ╠═cb4d6d00-5a73-11eb-1e51-b32beb2a40f3
 # ╠═8dd5af30-5a7f-11eb-26f9-13afc988b741
 # ╠═98e3e26e-5a7f-11eb-22cb-7b2e6061369c
+# ╟─edc75300-5a87-11eb-2e65-3da4fcbacb65
+# ╠═c2cd7930-5a88-11eb-2b08-c1cb82c4cde0
+# ╠═de5bbf70-5a8f-11eb-09fe-7fdd53997909

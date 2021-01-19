@@ -22,9 +22,9 @@ end
 
 # ╔═╡ 9ab62d90-5923-11eb-1ff0-479e31e1f714
 function makeGrid(g::Grid)
-	rango_abcisas=0:g.paso:g.limite_abcisas
-	rango_ordenadas=0:g.paso:g.limite_ordenadas
-	[rango_abcisas,rango_ordenadas]
+	rango_abcisas=-g.limite_abcisas:g.paso:g.limite_abcisas
+	rango_ordenadas=-g.limite_ordenadas:g.paso:g.limite_ordenadas
+return [x+y*im for x in rango_abcisas,y in rango_ordenadas]
 end 
 
 # ╔═╡ bcb46270-590c-11eb-1701-c9f3bd9b024d
@@ -99,12 +99,12 @@ function setjulia(f::Function,test::Function,grid::Array{T,2} where T,c::Complex
 end
 
 # ╔═╡ 0f1d7d02-593d-11eb-257d-d105bb61cce6
-#begin
-#grid=Grid{Float64}(-2,2,0.1)
-#matriz=makeGrid(grid)
-#conjunto_Julia=setjulia(f_0,testJM,matriz,0*im,5,0)
-#scatter(conjunto_Julia, seriescolor=:white,markerstrokecolor=:blue,aspectratio=1,title="Conjunto de Julia",legend=false,markersize=40)
-#end
+begin
+grid=Grid{Float64}(2,2,0.1)
+matriz=makeGrid(grid)
+conjunto_Julia=setjulia(f_0,testJM,matriz,0*im,5,0)
+scatter(conjunto_Julia, seriescolor=:white,markerstrokecolor=:blue,aspectratio=1,title="Conjunto de Julia",legend=false,markersize=40)
+end
 
 # ╔═╡ Cell order:
 # ╠═abec3c30-5900-11eb-2299-cb5807fb5743

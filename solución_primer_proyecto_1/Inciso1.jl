@@ -44,28 +44,24 @@ end
 
 # ╔═╡ 9e4e9130-5910-11eb-132c-7d8bb54f8e9d
 function iterate(test::Function,f::Function,z::Complex,iter::Integer,c::Complex,τ::Real)
-	z_i=z;
-	if test==testJM 
-	 for i=1:iter 
-		if test(z_i)==false break
-			end 
-		z_i=f(z_i,c); 
-		i+=1
-		end
-		return testJM(z_i)
-	end 
-		
-	if test==testbiomorph
-	 for i=1:iter 
-		if test(z_i,τ)==false break
-			end 
-		z_i=f(z_i,c); 
-		i+=1
-		end
-		return testbiomorph(z_i,τ)
-	end 
+cumple= true
 	
+	for i ∈ 1:iter
+		if test==testJM && test(z)==false #test conjuntos J y M 
+			cumple= false
+			break #Si no se cumple nos salimos del bucle
+		elseif test==testbiomorph && test(z, τ)==false #test formas biológicas
+			cumple = false
+			break #Si no se cumple nos salimos del bucle
+		end
+		z= f(z, c)
+		i+=1	
+	end
+	
+	cumple  #Al final retorna si se cumple (true) o no (false) el test
 end
+	
+
 
 # ╔═╡ a41a01a2-5922-11eb-143e-1f80d85ec506
 function colormap(f::Function,test::Function,z::Complex,c::Complex,iter::Integer,τ::Integer)
@@ -82,28 +78,28 @@ end
 
 # ╔═╡ be4a7ce0-593a-11eb-28c9-195707e3e9d0
 function setjulia(f::Function,test::Function,grid::Array{T,2} where T,c::Complex,iter::Integer,τ::Real=0)
-	m=size(grid,1); #el numero de filas
-	n=size(grid,2); #el numero de columnas
-    matriz_ceros=zeros(m,n) #creamos una matriz de ceros de mxn
-	  for i in 1:m
-         for j in 1:n
-            value=iterate(test,f,grid[i,j],iter,c,τ) #ver si cumple la convergencia
-            if value==true
-				matriz_ceros[i,j]=grid[i,j]
-            else
-                matriz_ceros[i,j]=0
-            end
-        end
-    end
-    return matriz_ceros
+	m= size(grid,1) #número de abcisas (eje X)
+	n= size(grid,2) #número de ordenadas (eje Y) 
+	
+	In_set= Array{Complex{Float64},1}()  #Array vacío
+	
+	for i ∈ 1:m
+		for j ∈ 1:n
+			points= grid[i,j]  #los puntos dentro del grid
+			if iterate(test,f,points,iter,c,τ)==true
+				push!(In_set,points)  #agregar los puntos que SI pertenecen
+			end
+		end
+	end
+	In_set  #retorna el conjunto de numeros que pertenecen al conjunto
 end
 
 # ╔═╡ 0f1d7d02-593d-11eb-257d-d105bb61cce6
 begin
-grid=Grid{Float64}(2,2,0.1)
+grid=Grid{Float64}(2,2,0.01)
 matriz=makeGrid(grid)
-conjunto_Julia=setjulia(f_0,testJM,matriz,0*im,5,0)
-scatter(conjunto_Julia, seriescolor=:white,markerstrokecolor=:blue,aspectratio=1,title="Conjunto de Julia",legend=false,markersize=40)
+conjunto_Julia=setjulia(f_0,testJM,matriz,0*im,10,0)
+scatter(conjunto_Julia, seriescolor=:white,markerstrokecolor=:blue,aspectratio=1,title="Conjunto de Julia",legend=false,markersize=10)
 end
 
 # ╔═╡ Cell order:

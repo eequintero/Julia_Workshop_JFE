@@ -4,6 +4,13 @@
 using Markdown
 using InteractiveUtils
 
+# ╔═╡ cb4d6d00-5a73-11eb-1e51-b32beb2a40f3
+begin
+	using Pkg; Pkg.activate("."); Pkg.instantiate()
+	using Plots
+	theme(:wong)	
+end
+
 # ╔═╡ 98c65340-5859-11eb-03be-699fb34b8d36
 md"# Solución Primer Proyecto"
 
@@ -31,8 +38,8 @@ md"* Función que crea una matriz de rangos para los ejes de las abcisas y orden
 Crear una matriz de rangos [rango_abcisas,rango_ordenadas]
 """
 function makeGrid(g::Grid)
-	rango_abcisas  = 0:g.paso:g.limite_abcisas   #origen:paso:limite
-	rango_ordenadas= 0:g.paso:g.limite_ordenadas #origen:paso:limite
+	rango_abcisas  = -g.limite_abcisas:g.paso:g.limite_abcisas   #origen:paso:limite
+	rango_ordenadas= -g.limite_ordenadas:g.paso:g.limite_ordenadas #origen:paso:limite
 	
 	[x+y*im for x in rango_abcisas, y in rango_ordenadas]
 end
@@ -174,7 +181,7 @@ function setmandelbrot(f::Function, test::Function, grid::Array{T,2} where T, it
 	m= size(grid,1) #número de abcisas (eje X) contando el 0
 	n= size(grid,2) #número de ordenadas (eje Y) contando el 0
 	
-	pertenecen= Array{Any,1}()  #Array vacío
+	pertenecen= Array{Complex{Float64},1}()  #Array vacío
 	
 	for i ∈ 1:m
 		for j ∈ 1:n
@@ -188,23 +195,31 @@ function setmandelbrot(f::Function, test::Function, grid::Array{T,2} where T, it
 end
 
 # ╔═╡ ec982e60-5a72-11eb-39c6-25dd69599c33
-begin
-	g= Grid{Float64}(10, 10, 0.3)
+begin  #Prueba de que el grid se crea correctamente
+	g= Grid{Float64}(100, 100, 0.1)
 	grid= makeGrid(g)
 end
-
-# ╔═╡ 0f958c52-5a73-11eb-3e5e-2793e1dde2a6
-(typeof(grid), size(grid))
-
-# ╔═╡ 58215020-5a6f-11eb-1bba-6f3fe829a3d8
-setmandelbrot(f₀, testJM, grid, 30) #Prueba de la función
 
 # ╔═╡ 8ac2dcd0-5a72-11eb-2d5f-dfe9a748c709
 md"* Gráfica de los puntos que pertenecen al conjunto"
 
-# ╔═╡ cb4d6d00-5a73-11eb-1e51-b32beb2a40f3
+# ╔═╡ 8dd5af30-5a7f-11eb-26f9-13afc988b741
+begin  #Ajustamos los valores de default para el tamaño de la gráfica
+	tamanio = 50
+	Plots.default(size = (2200,2200),titlefontsize = tamanio, tickfontsize = tamanio, 	  legendfontsize = tamanio, guidefontsize = tamanio, legendtitlefontsize = tamanio)
+end
+
+# ╔═╡ 98e3e26e-5a7f-11eb-22cb-7b2e6061369c
 begin
-	## Su código aquí	
+	puntos= setmandelbrot(f₀, testJM, grid, 30)
+	
+	scatter(puntos, seriescolor=:white,
+		    markerstrokecolor=:blue,
+		    aspectratio=1,
+		    title="Conjunto de Mandelbrot",
+			legend=false,
+			markersize=30)
+	#savefig("Mandelbrot.png")
 end
 
 # ╔═╡ Cell order:
@@ -229,7 +244,7 @@ end
 # ╟─9c133fc0-59d7-11eb-3f14-05b0a0f1ba1a
 # ╠═ef6dbffe-59d7-11eb-1d7b-07a550f9f718
 # ╠═ec982e60-5a72-11eb-39c6-25dd69599c33
-# ╠═0f958c52-5a73-11eb-3e5e-2793e1dde2a6
-# ╠═58215020-5a6f-11eb-1bba-6f3fe829a3d8
 # ╟─8ac2dcd0-5a72-11eb-2d5f-dfe9a748c709
 # ╠═cb4d6d00-5a73-11eb-1e51-b32beb2a40f3
+# ╠═8dd5af30-5a7f-11eb-26f9-13afc988b741
+# ╠═98e3e26e-5a7f-11eb-22cb-7b2e6061369c
